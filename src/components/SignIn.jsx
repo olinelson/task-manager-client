@@ -1,7 +1,7 @@
 import React from 'react'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { withRouter } from 'react-router-dom'
-import { Dialog, Classes, Tooltip, Button, AnchorButton, Intent } from '@blueprintjs/core'
+import { Dialog, FormGroup, InputGroup, Classes, Tooltip, Button, AnchorButton, Intent } from '@blueprintjs/core'
 
 
 function SignIn(props) {
@@ -10,7 +10,8 @@ function SignIn(props) {
     const [loginDialogOpen, setLoginDialogOpen] = useState(false)
 
 
-    const loginUser = async () => {
+    const loginUser = async (e) => {
+        e.preventDefault()
         const res = await fetch('http://localhost:3000/users/login', {
             method: 'POST',
             headers: {
@@ -38,32 +39,34 @@ function SignIn(props) {
         <Button onClick={() => setLoginDialogOpen(true)}>Sign In</Button>
         <Dialog
             isOpen={loginDialogOpen}
-            icon="info-sign"
+            icon="log-in"
             onClose={() => setLoginDialogOpen(false)}
-            title="Palantir Foundry"
+            title="Sign in to your account"
         >
             <div className={Classes.DIALOG_BODY}>
-                <h1>Sign In</h1>
-                <form>
-                    <input onChange={(e) => setLoginData({ ...loginData, email: e.target.value })} type="text" />
-                    <input onChange={(e) => setLoginData({ ...loginData, password: e.target.value })} type="password" />
-                </form>
-                <button onClick={() => loginUser()}>login</button>
-
-            </div>
-            <div className={Classes.DIALOG_FOOTER}>
-                <div className={Classes.DIALOG_FOOTER_ACTIONS}>
-                    <Tooltip content="This button is hooked up to close the dialog.">
-                        <Button onClick={() => setLoginDialogOpen(false)}>Close</Button>
-                    </Tooltip>
-                    <AnchorButton
-                        intent={Intent.PRIMARY}
-                        href="https://www.palantir.com/palantir-foundry/"
-                        target="_blank"
+                <form onSubmit={(e) => loginUser(e)}>
+                    <FormGroup
+                        label="Email"
+                        labelFor="text-input"
+                        labelInfo="(required)"
                     >
-                        Visit the Foundry website
-                            </AnchorButton>
-                </div>
+                        <InputGroup value={loginData.email} onChange={(e) => setLoginData({ ...loginData, email: e.target.value })} id="text-input" placeholder="Placeholder text" />
+                    </FormGroup>
+
+                    <FormGroup
+                        label="Password"
+                        labelFor="text-input"
+                        labelInfo="(required)"
+                    >
+                        <InputGroup value={loginData.password} onChange={(e) => setLoginData({ ...loginData, password: e.target.value })} id="text-input" type="password" placeholder="Placeholder text" />
+                    </FormGroup>
+
+                    {/* <input type="text" /> */}
+                    {/* <input onChange={(e) => setLoginData({ ...loginData, password: e.target.value })} type="password" /> */}
+                    <button className="bp3-button">Sign In</button>
+                </form>
+
+
             </div>
         </Dialog>
     </>

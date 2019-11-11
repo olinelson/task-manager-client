@@ -7,7 +7,6 @@ import About from './components/About'
 import Tasks from './components/Tasks'
 import Home from './components/Home'
 
-import { Dialog, Classes, Tooltip, Button, AnchorButton, Intent } from '@blueprintjs/core'
 
 import { authTokenIsStored, readUserProfile } from './utils/auth_utils'
 
@@ -58,7 +57,7 @@ function App() {
           ) : (
               <Redirect
                 to={{
-                  pathname: "/sign_in",
+                  pathname: "/",
                   state: { from: location }
                 }}
               />
@@ -76,9 +75,12 @@ function App() {
         render={routeProps => (
           <>
             <Link to="/">Home</Link>
-            <Link to="/tasks">Tasks</Link>
+
             {currentUser ?
-              <Link onClick={() => signOutHandler(routeProps)}>Sign Out</Link>
+              <>
+                <a onClick={() => signOutHandler(routeProps)}>Sign Out</a>
+                <Link to="/tasks">Tasks</Link>
+              </>
               :
               <SignIn autoLogin={() => autoLogin()} />
             }
@@ -92,10 +94,6 @@ function App() {
       <Switch>
         <Route exact path="/">
           <Home />
-        </Route>
-
-        <Route exact path="/sign_in">
-          <SignIn autoLogin={() => autoLogin()} />
         </Route>
 
         <Route path="/about">
