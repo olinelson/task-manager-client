@@ -1,13 +1,16 @@
 import React, { useEffect, useState } from 'react'
 import { withRouter } from 'react-router-dom'
 
-import { Switch, Checkbox, Button } from '@blueprintjs/core'
+import styled from 'styled-components'
+
+import { Switch, Checkbox, Button, Divider } from '@blueprintjs/core'
 
 import { getAuthToken, setAuthToken, authTokenIsStored } from '../utils/auth_utils'
 
 // components
 import AddTask from './AddTask'
 import EditTask from './EditTask'
+import { FLEX_EXPANDER } from '@blueprintjs/core/lib/esm/common/classes'
 
 function Tasks(props) {
 
@@ -86,15 +89,23 @@ function Tasks(props) {
         setTasks([...tasks, data])
     }
 
+    const TaskItem = styled.div`
+        display: grid;
+        grid-template-columns: 1fr auto 2rem 2rem;
+        // max-width: 20rem;
+
+    `
+
     return <>
         <h1>Tasks</h1>
         <AddTask addTaskAction={(data) => addTaskAction(data)} />
 
-        {tasks.sort((b, a) => new Date(a.createdAt) - new Date(b.createdAt)).map(t => <div key={t._id}>
-            <Checkbox onChange={() => toggleTaskCompleted(t)} checked={t.completed} label={t.description} />
-            <Button onClick={() => deleteTask(t)} icon="trash" />
+        {tasks.sort((b, a) => new Date(a.createdAt) - new Date(b.createdAt)).map(t => <TaskItem key={t._id}>
+            <Checkbox style={{ columnSpan: 3 }} onChange={() => toggleTaskCompleted(t)} checked={t.completed} label={t.description} />
+            <div />
+            <Button minimal onClick={() => deleteTask(t)} icon="trash" />
             <EditTask updateTaskAction={(e) => updateTaskAction(e)} task={t} />
-        </div>)}
+        </TaskItem>)}
     </>
 }
 

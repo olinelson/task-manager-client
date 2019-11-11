@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from 'react';
+
+// styles
 import './App.css';
+import { Navbar, Alignment, AnchorButton, Button } from '@blueprintjs/core'
 
 // components
 import SignIn from './components/SignIn'
@@ -7,11 +10,10 @@ import About from './components/About'
 import Tasks from './components/Tasks'
 import Home from './components/Home'
 
-
+// utils
 import { authTokenIsStored, readUserProfile } from './utils/auth_utils'
 
-
-
+// router
 import {
   BrowserRouter as Router,
   Switch,
@@ -39,6 +41,8 @@ function App() {
   useEffect(() => {
     autoLogin()
   }, [])
+
+
 
   const signOutHandler = (routeProps) => {
     setCurrentUser(undefined)
@@ -73,38 +77,39 @@ function App() {
     <Router>
       <Route
         render={routeProps => (
-          <>
-            <Link to="/">Home</Link>
+          <Navbar>
+            <Navbar.Group align={Alignment.LEFT}>
+              <Link className="bp3-button bp3-minimal" to="/" >Home</Link>
+              {currentUser ? <Link className="bp3-button bp3-minimal" to="/tasks">Tasks</Link> : null}
 
-            {currentUser ?
-              <>
-                <a onClick={() => signOutHandler(routeProps)}>Sign Out</a>
-                <Link to="/tasks">Tasks</Link>
-              </>
-              :
-              <SignIn autoLogin={() => autoLogin()} />
-            }
-
-
-
-          </>
+            </Navbar.Group>
+            <Navbar.Group align={Alignment.RIGHT}>
+              <Navbar.Divider />
+              {currentUser ? <Button minimal onClick={() => signOutHandler(routeProps)}>Sign Out</Button>
+                :
+                <SignIn autoLogin={() => autoLogin()} />
+              }
+            </Navbar.Group>
+          </Navbar>
         )}
 
       />
-      <Switch>
-        <Route exact path="/">
-          <Home />
-        </Route>
+      <div style={{ margin: '1rem' }}>
+        <Switch>
+          <Route exact path="/">
+            <Home />
+          </Route>
 
-        <Route path="/about">
-          <About />
-        </Route>
+          <Route path="/about">
+            <About />
+          </Route>
 
-        <PrivateRoute path="/tasks">
-          <Tasks />
-        </PrivateRoute>
+          <PrivateRoute path="/tasks">
+            <Tasks />
+          </PrivateRoute>
 
-      </Switch>
+        </Switch>
+      </div>
     </Router>
   );
 }

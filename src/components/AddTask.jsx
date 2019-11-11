@@ -2,6 +2,8 @@ import React, { useState } from 'react'
 
 import { Dialog, FormGroup, InputGroup, Classes, Button } from '@blueprintjs/core'
 import { getAuthToken } from '../utils/auth_utils'
+import { AppToaster } from "./Toaster";
+
 
 
 export default function AddTask(props) {
@@ -10,24 +12,29 @@ export default function AddTask(props) {
         description: '',
         completed: false
     })
+    const [isLoading, setIsLoading] = useState(false)
 
     const createTask = async (e) => {
         e.preventDefault()
-        const res = await fetch('http://localhost:3000/tasks', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${getAuthToken()}`,
-            },
-            body: JSON.stringify(newTaskData)
-        })
-        let data = await res.json()
-        if (data.errors) return console.log(data)
+        setIsLoading(true)
+        try {
+            const res = await fetch('http://localhost:3000/tasks', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${getAuthToken()}`,
+                },
+                body: JSON.stringify(newTaskData)
+            })
+            let data = await res.json()
+            setAddTaskDialogOpen(false)
+            AppToaster.show({ intent: 'success', message: 'New Task Created!' });
+            props.addTaskAction(data)
+        } catch (error) {
+            AppToaster.show({ intent: 'danger', message: 'Couldn\'t create task' });
+        }
 
-        setAddTaskDialogOpen(false)
-
-        return props.addTaskAction(data)
-
+        setIsLoading(false)
     }
 
     return <>
@@ -47,7 +54,7 @@ export default function AddTask(props) {
                     >
                         <InputGroup value={newTaskData.description} onChange={(e) => setNewTaskData({ ...newTaskData, description: e.target.value })} id="text-input" placeholder="Placeholder text" />
                     </FormGroup>
-                    <button className="bp3-button">Create</button>
+                    <Button loading={isLoading} type="submit">Create</Button>
                 </form>
 
 

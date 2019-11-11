@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import { Button, Dialog, Classes, FormGroup, InputGroup } from '@blueprintjs/core'
+import { AppToaster } from "./Toaster";
 
 import { getAuthToken } from '../utils/auth_utils'
 
@@ -9,32 +10,37 @@ export default function EditTask(props) {
         _id: props.task._id,
         description: props.task.description
     })
+    const [isLoading, setIsLoading] = useState(false)
 
     const updateTask = async (e) => {
         e.preventDefault()
-        const res = await fetch(`http://localhost:3000/tasks/${editedTask._id}`, {
-            method: 'PATCH',
-            headers: {
-                'Authorization': `Bearer ${getAuthToken()}`,
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                description: editedTask.description
-            })
-        })
-
+        setIsLoading(true)
         try {
+            const res = await fetch(`http://localhost:3000/tasks/${editedTask._id}`, {
+                method: 'PATCH',
+                headers: {
+                    'Authorization': `Bearer ${getAuthToken()}`,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    description: editedTask.description
+                })
+            })
+
             let updatedTask = await res.json()
-            // let filteredTasks = tasks.filter(t => t._id !== task._id)
             props.updateTaskAction(updatedTask)
             setEditTaskDialogOpen(false)
+            AppToaster.show({ intent: 'success', message: 'Task updated successfully' });
+
         } catch (error) {
-            console.log(error)
+            AppToaster.show({ intent: 'danger', message: 'Couldn\'t update task' });
         }
+
+        setIsLoading(false)
     }
 
     return <>
-        <Button icon="edit" onClick={() => setEditTaskDialogOpen(true)} />
+        <Button minimal icon="edit" onClick={() => setEditTaskDialogOpen(true)} />
         <Dialog
             isOpen={editTaskDialogOpen}
             icon="edit"
@@ -48,9 +54,9 @@ export default function EditTask(props) {
                         labelFor="text-input"
                         labelInfo="(required)"
                     >
-                        <InputGroup value={editedTask.description} onChange={(e) => setEditedTask({ ...editedTask, description: e.target.value })} id="text-input" placeholder="Placeholder text" />
+                        <InputGroup required value={editedTask.description} onChange={(e) => setEditedTask({ ...editedTask, description: e.target.value })} id="text-input" placeholder="Placeholder text" />
                     </FormGroup>
-                    <button className="bp3-button">Save</button>
+                    <Button loading={isLoading} type="submit">Save</Button>
                 </form>
 
 
