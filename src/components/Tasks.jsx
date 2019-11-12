@@ -3,25 +3,28 @@ import { withRouter } from 'react-router-dom'
 
 import styled from 'styled-components'
 
-import { Switch, Checkbox, Button, Divider } from '@blueprintjs/core'
+import { Checkbox, Button, Dialog, Classes, InputGroup, FormGroup } from '@blueprintjs/core'
+import { AppToaster } from "./Toaster";
 
-import { getAuthToken, setAuthToken, authTokenIsStored } from '../utils/auth_utils'
+import { getAuthToken } from '../utils/auth_utils'
 
 // components
 import AddTask from './AddTask'
-import EditTask from './EditTask'
-import { FLEX_EXPANDER } from '@blueprintjs/core/lib/esm/common/classes'
+import TaskItem from './TaskItem'
 
 function Tasks(props) {
 
     const [tasks, setTasks] = useState([])
+    const [editingTask, setEditingTask] = useState({ description: '' })
+    const [formIsLoading, setFormIsLoading] = useState(false)
 
     useEffect(() => {
         getUsersTasks()
     }, [])
 
+
+
     const getUsersTasks = async () => {
-        console.log('getting tasks')
         const res = await fetch('http://localhost:3000/tasks?sortBy=completed:asc', {
             headers: {
                 'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
@@ -52,7 +55,6 @@ function Tasks(props) {
 
         try {
             let updatedTask = await res.json()
-
             let filteredTasks = tasks.filter(t => t._id !== task._id)
             setTasks([...filteredTasks, updatedTask])
         } catch (error) {
@@ -60,14 +62,9 @@ function Tasks(props) {
         }
     }
 
-    const updateTaskAction = (task) => {
-        let filteredTasks = tasks.filter(t => t._id !== task._id)
-        setTasks([...filteredTasks, task])
-    }
-
 
     const deleteTask = async (task) => {
-        const res = await fetch(`http://localhost:3000/tasks/${task._id}`, {
+        await fetch(`http://localhost:3000/tasks/${task._id}`, {
             method: 'DELETE',
             headers: {
                 'Authorization': `Bearer ${getAuthToken()}`,
@@ -76,7 +73,6 @@ function Tasks(props) {
         })
 
         try {
-            // let updatedTask = await res.json()
 
             let filteredTasks = tasks.filter(t => t._id !== task._id)
             setTasks(filteredTasks)
@@ -85,27 +81,79 @@ function Tasks(props) {
         }
     }
 
+    const updateTask = async (e) => {
+        e.preventDefault()
+        setFormIsLoading(true)
+        try {
+            const res = await fetch(`http://localhost:3000/tasks/${editingTask._id}`, {
+                method: 'PATCH',
+                headers: {
+                    'Authorization': `Bearer ${getAuthToken()}`,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    description: editingTask.description
+                })
+            })
+
+            let updatedTask = await res.json()
+            let filteredTasks = tasks.filter(t => t._id !== updatedTask._id)
+            setTasks([...filteredTasks, updatedTask])
+            setEditingTask({ description: '' })
+            AppToaster.show({ intent: 'success', message: 'Task updated successfully' });
+
+        } catch (error) {
+            AppToaster.show({ intent: 'danger', message: 'Couldn\'t update task' });
+        }
+
+        setFormIsLoading(false)
+    }
+
     const addTaskAction = (data) => {
         setTasks([...tasks, data])
     }
 
-    const TaskItem = styled.div`
-        display: grid;
-        grid-template-columns: 1fr auto 2rem 2rem;
-        // max-width: 20rem;
-
-    `
 
     return <>
         <h1>Tasks</h1>
         <AddTask addTaskAction={(data) => addTaskAction(data)} />
 
-        {tasks.sort((b, a) => new Date(a.createdAt) - new Date(b.createdAt)).map(t => <TaskItem key={t._id}>
-            <Checkbox style={{ columnSpan: 3 }} onChange={() => toggleTaskCompleted(t)} checked={t.completed} label={t.description} />
-            <div />
-            <Button minimal onClick={() => deleteTask(t)} icon="trash" />
-            <EditTask updateTaskAction={(e) => updateTaskAction(e)} task={t} />
-        </TaskItem>)}
+        {tasks.sort((b, a) => new Date(a.createdAt) - new Date(b.createdAt)).map(t => {
+            return (
+                <TaskItem
+                    key={t._id}
+                    deleteTask={() => deleteTask(t)}
+                    setEditingTask={() => setEditingTask(t)}
+                    toggleTaskCompleted={() => toggleTaskCompleted(t)}
+                    t={t}
+                />
+            )
+        })}
+
+
+
+        {/* edit task dialog */}
+        <Dialog
+            isOpen={editingTask._id ? true : false}
+            icon="edit"
+            onClose={() => setEditingTask({ description: '' })}
+            title="Edit Task"
+        >
+            <div className={Classes.DIALOG_BODY}>
+                <form onSubmit={(e) => updateTask(e)}>
+                    <FormGroup
+                        label="Description"
+                        labelFor="text-input"
+                        labelInfo="(required)"
+                    >
+                        <InputGroup required value={editingTask.description} onChange={(e) => setEditingTask({ ...editingTask, description: e.target.value })} id="text-input" placeholder="Placeholder text" />
+                    </FormGroup>
+                    <Button loading={formIsLoading} type="submit">Save</Button>
+                </form>
+
+
+            </div>
+        </Dialog>
     </>
 }
 

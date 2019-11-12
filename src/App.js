@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 
 // styles
 import './App.css';
-import { Navbar, Alignment, AnchorButton, Button } from '@blueprintjs/core'
+import { Navbar, Alignment, Button } from '@blueprintjs/core'
 
 // components
 import SignIn from './components/SignIn'
@@ -30,7 +30,7 @@ function App() {
 
   const autoLogin = async () => {
     if (authTokenIsStored()) {
-      console.log('logging in')
+
       let user = await readUserProfile()
       if (user) return setCurrentUser(user)
     }
@@ -71,7 +71,6 @@ function App() {
     );
   }
 
-  console.log(currentUser)
 
   return (
     <Router>
@@ -91,6 +90,8 @@ function App() {
               }
             </Navbar.Group>
           </Navbar>
+
+
         )}
 
       />

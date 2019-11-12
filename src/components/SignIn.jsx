@@ -1,7 +1,7 @@
 import React from 'react'
 import { useState } from 'react'
 import { withRouter } from 'react-router-dom'
-import { Dialog, FormGroup, InputGroup, Classes, Tooltip, Button, AnchorButton, Intent } from '@blueprintjs/core'
+import { Dialog, FormGroup, InputGroup, Classes, Button } from '@blueprintjs/core'
 
 import { AppToaster } from "./Toaster";
 
@@ -12,11 +12,8 @@ function SignIn(props) {
     const [loginData, setLoginData] = useState({ email: '', password: '' })
     const [loginDialogOpen, setLoginDialogOpen] = useState(false)
     const [isLoading, setIsLoading] = useState(false)
-    const showToast = () => {
-        // create toasts in response to interactions.
-        // in most cases, it's enough to simply create and forget (thanks to timeout).
-        AppToaster.show({ message: "Toasted." });
-    }
+
+
 
     const loginUser = async (e) => {
         e.preventDefault()
@@ -33,18 +30,14 @@ function SignIn(props) {
         })
 
         setIsLoading(false)
-
-        if (!res.ok) {
-            AppToaster.show({ intent: 'warning', message: 'Incorrect password or email' });
-            return
-        }
         try {
             let data = await res.json()
             localStorage.setItem('authToken', data.token)
             props.autoLogin()
-            props.history.push('/tasks')
+
             setLoginDialogOpen(false)
             AppToaster.show({ intent: 'success', message: "Sign In Successful" });
+
         } catch (error) {
             console.log(error)
             AppToaster.show({ intent: 'danger', message: 'something went wrong' });
