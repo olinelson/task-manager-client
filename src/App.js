@@ -2,11 +2,8 @@ import React, { useState, useEffect } from 'react';
 
 // styles
 import './App.css';
-import { Navbar, Alignment, Button } from '@blueprintjs/core'
 
 // components
-import SignIn from './components/SignIn'
-import About from './components/About'
 import Tasks from './components/Tasks'
 import Home from './components/Home'
 
@@ -21,6 +18,7 @@ import {
   Link,
   Redirect
 } from "react-router-dom";
+import NavBar from './components/NavBar';
 
 
 
@@ -39,16 +37,12 @@ function App() {
 
 
   useEffect(() => {
+    console.log('auto login')
     autoLogin()
   }, [])
 
 
 
-  const signOutHandler = (routeProps) => {
-    setCurrentUser(undefined)
-    localStorage.clear()
-    routeProps.history.push('/')
-  }
 
 
   const PrivateRoute = ({ children, ...rest }) => {
@@ -74,35 +68,11 @@ function App() {
 
   return (
     <Router>
-      <Route
-        render={routeProps => (
-          <Navbar>
-            <Navbar.Group align={Alignment.LEFT}>
-              <Link className="bp3-button bp3-minimal" to="/" >Home</Link>
-              {currentUser ? <Link className="bp3-button bp3-minimal" to="/tasks">Tasks</Link> : null}
-
-            </Navbar.Group>
-            <Navbar.Group align={Alignment.RIGHT}>
-              <Navbar.Divider />
-              {currentUser ? <Button minimal onClick={() => signOutHandler(routeProps)}>Sign Out</Button>
-                :
-                <SignIn autoLogin={() => autoLogin()} />
-              }
-            </Navbar.Group>
-          </Navbar>
-
-
-        )}
-
-      />
+      <Route render={routeProps => <NavBar {...routeProps} currentUser={currentUser} autoLogin={autoLogin} setCurrentUser={setCurrentUser} />} />
       <div style={{ margin: '1rem' }}>
         <Switch>
           <Route exact path="/">
             <Home />
-          </Route>
-
-          <Route path="/about">
-            <About />
           </Route>
 
           <PrivateRoute path="/tasks">

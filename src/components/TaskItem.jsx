@@ -13,11 +13,11 @@ export default function TaskItem(props) {
 
     return (
         <TaskContainer onMouseEnter={() => setIsHovering(true)} onMouseLeave={() => setIsHovering(false)} >
-            <Checkbox style={{ columnSpan: 3 }} onChange={() => props.toggleTaskCompleted()} checked={props.t.completed} label={props.t.description} />
+            <Checkbox style={{ columnSpan: 3 }} onChange={() => props.onToggleClick()} checked={props.t.completed} label={props.t.description} />
             <div />
 
-            <Button style={{ visibility: isHovering ? 'default' : 'hidden' }} minimal onClick={() => props.deleteTask()} icon="trash" />
-            <Button style={{ visibility: isHovering ? 'default' : 'hidden' }} minimal onClick={() => props.setEditingTask()} icon="edit" />
+            <Button style={{ visibility: isHovering ? 'default' : 'hidden' }} minimal onClick={() => props.onDeleteButtonClick()} icon="trash" />
+            <Button style={{ visibility: isHovering ? 'default' : 'hidden' }} minimal onClick={() => props.onEditButtonClick()} icon="edit" />
 
 
         </TaskContainer>

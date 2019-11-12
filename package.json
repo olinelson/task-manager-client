@@ -12,6 +12,7 @@
   },
   "scripts": {
     "start": "react-scripts start",
+    "start-pwa": "http-server ./build",
     "dev": "PORT=3001 react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
@@ -31,5 +32,8 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "http-server": "^0.11.1"
   }
 }
